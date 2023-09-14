@@ -1,15 +1,19 @@
 package org.example.domain;
 
+import org.example.observer.Observer;
+import org.example.observer.Subject;
 import org.example.state.*;
 import org.example.strategy.DiscountStrategy;
 
 import java.util.*;
 
 
-public class Order {
+public class Order implements Subject {
     private OrderStatus currentStatus;
     private OrderState currentState;
     private final Map<OrderStatus, OrderState> states = new HashMap<>();
+    private final List<Observer> observers = new ArrayList<>();
+    private String message;
 
     public Order() {
         states.put(OrderStatus.PAID, new Paid(this));
@@ -24,6 +28,8 @@ public class Order {
         var totalPriceWithDiscount = this.calculateTotalWithDiscount(totalPrice, discountStrategies);
         this.currentState.successInPaying();
 
+        this.message = "Payment of Order number xyx was a success";
+        this.notifyObservers();
 
         System.out.printf("Total Price: %s%n", totalPrice);
         System.out.printf("With discounts the final price is: %s%n", totalPriceWithDiscount);
@@ -70,5 +76,19 @@ public class Order {
         this.currentState = currentState;
     }
 
+    @Override
+    public void registerObserver(Observer observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void removerObserver(Observer observer) {
+        this.observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        this.observers.forEach(observer -> observer.update(this.message));
+    }
 }
 

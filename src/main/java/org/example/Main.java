@@ -15,6 +15,12 @@ public class Main {
 
         Order order = new Order();
 
+        DeliveryService deliveryService = new DeliveryService();
+        order.registerObserver(deliveryService);
+
+        NotificationService notificationService = new NotificationService();
+        order.registerObserver(notificationService);
+
         order.pay(firstTimeBuying, volumeDiscount);
         order.dispatch();
     }
